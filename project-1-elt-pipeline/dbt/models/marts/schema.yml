@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: fraud_mart
+    description: "Gold layer fact table for fraud investigation. Includes engineered features and a rule-based risk score."
+    columns:
+      - name: transaction_time_seconds
+        tests:
+          - not_null
+      - name: is_fraud
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: risk_score
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['HIGH', 'MEDIUM', 'LOW']
+      - name: transaction_amount
+        tests:
+          - not_null
+      - name: ingested_at
+        tests:
+          - not_null
+
+  - name: reporting_mart
+    description: "Hourly aggregates for business dashboards — fraud rate, volume, and risk distribution per hour."
+    columns:
+      - name: transaction_hour
+        tests:
+          - not_null
+          - unique
+      - name: total_transactions
+        tests:
+          - not_null
+      - name: fraud_rate_pct
+        tests:
+          - not_null

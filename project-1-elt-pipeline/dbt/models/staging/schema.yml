@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: stg_transactions
+    description: >
+      Standardised view of raw credit card transactions.
+      Renames PCA features to pca_feature_XX for readability and casts types.
+    columns:
+      - name: transaction_time_seconds
+        description: "Seconds elapsed since the first transaction in the dataset."
+        tests:
+          - not_null
+      - name: transaction_amount
+        description: "Transaction amount in EUR."
+        tests:
+          - not_null
+      - name: is_fraud
+        description: "Binary fraud label: 1 = fraud, 0 = legitimate."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: ingested_at
+        description: "UTC timestamp of when the raw row was written."
+        tests:
+          - not_null

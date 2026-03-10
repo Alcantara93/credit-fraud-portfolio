@@ -1,0 +1,24 @@
+credit_fraud:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DBT_POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('DBT_POSTGRES_PORT', '5433') | int }}"
+      user: "{{ env_var('DBT_POSTGRES_USER', 'fraud_user') }}"
+      password: "{{ env_var('DBT_POSTGRES_PASSWORD', 'fraud_pass') }}"
+      dbname: fraud_db
+      schema: silver
+      threads: 4
+      connect_timeout: 10
+
+    prod:
+      type: postgres
+      host: "{{ env_var('DBT_POSTGRES_HOST') }}"
+      port: "{{ env_var('DBT_POSTGRES_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_POSTGRES_USER') }}"
+      password: "{{ env_var('DBT_POSTGRES_PASSWORD') }}"
+      dbname: fraud_db
+      schema: silver
+      threads: 8
+      connect_timeout: 10

@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: int_fraud_features
+    description: >
+      Intermediate feature engineering layer. Adds transaction_hour,
+      amount_bucket (spend tier), and velocity_1h (rolling count within
+      the same hour bucket) to every transaction row.
+    columns:
+      - name: transaction_time_seconds
+        tests:
+          - not_null
+      - name: transaction_amount
+        tests:
+          - not_null
+      - name: is_fraud
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: transaction_hour
+        tests:
+          - not_null
+      - name: amount_bucket
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['micro', 'small', 'medium', 'large']
+      - name: velocity_1h
+        tests:
+          - not_null

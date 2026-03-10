@@ -1,0 +1,28 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw ingestion layer — data loaded directly from CSV by the Python ingestion script."
+    schema: raw
+    tables:
+      - name: transactions
+        description: >
+          Raw credit card transactions loaded from the Kaggle Credit Card Fraud Detection dataset.
+          Contains 284,807 transactions with 30 features (Time, Amount, V1-V28) and a binary fraud label.
+        columns:
+          - name: Time
+            description: "Seconds elapsed between this transaction and the first transaction in the dataset."
+          - name: Amount
+            description: "Transaction amount in EUR."
+          - name: Class
+            description: "Fraud label — 1 = fraud, 0 = legitimate."
+          - name: V1
+            description: "PCA-anonymised feature 1."
+          - name: V2
+            description: "PCA-anonymised feature 2."
+          - name: V14
+            description: "PCA-anonymised feature 14 — known high-importance fraud signal."
+          - name: V17
+            description: "PCA-anonymised feature 17 — known high-importance fraud signal."
+          - name: ingested_at
+            description: "UTC timestamp when the row was written by the ingestion script."

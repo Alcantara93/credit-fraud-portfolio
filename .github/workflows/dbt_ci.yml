@@ -1,0 +1,101 @@
+name: dbt CI
+
+on:
+  pull_request:
+    paths:
+      - 'project-1-elt-pipeline/dbt/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'project-1-elt-pipeline/dbt/**'
+
+jobs:
+  dbt-ci:
+    name: dbt compile & test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: fraud_user
+          POSTGRES_PASSWORD: fraud_pass
+          POSTGRES_DB: fraud_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-postgres==1.7.4
+
+      - name: Init DB schemas
+        run: |
+          PGPASSWORD=fraud_pass psql -h localhost -U fraud_user -d fraud_db \
+            -f project-1-elt-pipeline/init_db.sql
+
+      - name: dbt deps
+        working-directory: project-1-elt-pipeline/dbt
+        run: dbt deps --profiles-dir .
+        env:
+          DBT_POSTGRES_HOST: localhost
+          DBT_POSTGRES_PORT: '5432'
+          DBT_POSTGRES_USER: fraud_user
+          DBT_POSTGRES_PASSWORD: fraud_pass
+
+      - name: dbt compile
+        working-directory: project-1-elt-pipeline/dbt
+        run: dbt compile --profiles-dir .
+        env:
+          DBT_POSTGRES_HOST: localhost
+          DBT_POSTGRES_PORT: '5432'
+          DBT_POSTGRES_USER: fraud_user
+          DBT_POSTGRES_PASSWORD: fraud_pass
+
+      - name: dbt run (dev seed data)
+        working-directory: project-1-elt-pipeline/dbt
+        run: dbt run --profiles-dir . --target dev
+        env:
+          DBT_POSTGRES_HOST: localhost
+          DBT_POSTGRES_PORT: '5432'
+          DBT_POSTGRES_USER: fraud_user
+          DBT_POSTGRES_PASSWORD: fraud_pass
+
+      - name: dbt test
+        working-directory: project-1-elt-pipeline/dbt
+        run: dbt test --profiles-dir .
+        env:
+          DBT_POSTGRES_HOST: localhost
+          DBT_POSTGRES_PORT: '5432'
+          DBT_POSTGRES_USER: fraud_user
+          DBT_POSTGRES_PASSWORD: fraud_pass
+
+      - name: dbt docs generate & upload artifact
+        if: github.ref == 'refs/heads/main'
+        working-directory: project-1-elt-pipeline/dbt
+        run: dbt docs generate --profiles-dir .
+        env:
+          DBT_POSTGRES_HOST: localhost
+          DBT_POSTGRES_PORT: '5432'
+          DBT_POSTGRES_USER: fraud_user
+          DBT_POSTGRES_PASSWORD: fraud_pass
+
+      - name: Upload dbt docs artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-docs
+          path: project-1-elt-pipeline/dbt/target/
