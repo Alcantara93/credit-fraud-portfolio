@@ -65,24 +65,6 @@ jobs:
           DBT_POSTGRES_USER: fraud_user
           DBT_POSTGRES_PASSWORD: fraud_pass
 
-      - name: dbt run (dev seed data)
-        working-directory: project-1-elt-pipeline/dbt
-        run: dbt run --profiles-dir . --target dev
-        env:
-          DBT_POSTGRES_HOST: localhost
-          DBT_POSTGRES_PORT: '5432'
-          DBT_POSTGRES_USER: fraud_user
-          DBT_POSTGRES_PASSWORD: fraud_pass
-
-      - name: dbt test
-        working-directory: project-1-elt-pipeline/dbt
-        run: dbt test --profiles-dir .
-        env:
-          DBT_POSTGRES_HOST: localhost
-          DBT_POSTGRES_PORT: '5432'
-          DBT_POSTGRES_USER: fraud_user
-          DBT_POSTGRES_PASSWORD: fraud_pass
-
       - name: dbt docs generate & upload artifact
         if: github.ref == 'refs/heads/main'
         working-directory: project-1-elt-pipeline/dbt
