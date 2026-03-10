@@ -40,7 +40,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dbt
-        run: pip install dbt-postgres==1.7.4
+        run: pip install dbt-postgres==1.7.4 "protobuf<4"
 
       - name: Init DB schemas
         run: |
